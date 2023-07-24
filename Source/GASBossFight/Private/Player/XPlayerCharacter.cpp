@@ -3,3 +3,8 @@
 
 #include "Player/XPlayerCharacter.h"
 
+// Called to bind functionality to input
+void AXPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}

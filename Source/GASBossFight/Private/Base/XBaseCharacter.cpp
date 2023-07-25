@@ -112,7 +112,7 @@ void AXBaseCharacter::SetStamina(float Stamina)
 
 void AXBaseCharacter::RemoveAbilities()
 {
-	if(!AbilitySystemComponent.IsValid() || !AbilitySystemComponent->CharacterAbilitiesGiven)
+	if(!AbilitySystemComponent.IsValid())
 		return;
 
 	TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
@@ -129,25 +129,21 @@ void AXBaseCharacter::RemoveAbilities()
 	{
 		AbilitySystemComponent->ClearAbility(AbilitiesToRemove[i]);
 	}
-
-	AbilitySystemComponent->CharacterAbilitiesGiven = false;
 }
 
 void AXBaseCharacter::AddAbilities()
 {
-	if(!AbilitySystemComponent.IsValid() || !AbilitySystemComponent->CharacterAbilitiesGiven)
+	if(!AbilitySystemComponent.IsValid())
 		return;
 
 	for (TSubclassOf<UXGameplayAbility> Ability : Abilities)
 	{
-		const FGameplayAbilitySpec Spec(Cast<UGameplayAbility>(Ability)
+		const FGameplayAbilitySpec Spec(Ability
 			, 1
 			, static_cast<int32>(Ability.GetDefaultObject()->InputID)
 			, this);
 		AbilitySystemComponent->GiveAbility(Spec);
 	}
-
-	AbilitySystemComponent->CharacterAbilitiesGiven = true;
 }
 
 void AXBaseCharacter::InitializeAttributes()
@@ -166,7 +162,7 @@ void AXBaseCharacter::InitializeAttributes()
 
 void AXBaseCharacter::AddStartupEffects()
 {
-	if(!AbilitySystemComponent.IsValid() || AbilitySystemComponent->StartupEffectsApplied)
+	if(!AbilitySystemComponent.IsValid())
 		return;
 
 	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
@@ -179,6 +175,4 @@ void AXBaseCharacter::AddStartupEffects()
 		if(NewHandle.IsValid())
 			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
 	}
-
-	AbilitySystemComponent->StartupEffectsApplied = true;
 }

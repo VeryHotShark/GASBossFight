@@ -53,7 +53,9 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
 protected:
+	UPROPERTY(BlueprintReadOnly, Category="Base Character | GAS")
 	TWeakObjectPtr<UXAbilitySystemComponent> AbilitySystemComponent;
+	
 	TWeakObjectPtr<UXAttributeSet> AttributeSet;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Base Character | Animation")

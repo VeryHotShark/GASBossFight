@@ -14,9 +14,6 @@ class GASBOSSFIGHT_API UXAbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 
 public:
-	bool CharacterAbilitiesGiven = false;
-	bool StartupEffectsApplied = false;
-
 	FOnReceivedDamageDelegate OnReceivedDamage;
 
 	virtual void ReceiveDamage(UXAbilitySystemComponent* ASC, float UnmitigatedDamage, float MitigatedDamage);

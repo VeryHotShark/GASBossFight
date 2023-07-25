@@ -55,7 +55,7 @@ void AXPlayerCharacter::BeginPlay()
 
 void AXPlayerCharacter::BindASCInput()
 {
-	if(!ASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
+	if(AbilitySystemComponent.IsValid() && IsValid(InputComponent))
 	{
 		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent
 			, FGameplayAbilityInputBinds(
@@ -64,7 +64,5 @@ void AXPlayerCharacter::BindASCInput()
 			,		FString("AbilityID")
 			, static_cast<int32>(AbilityID::Confirm)
 			, static_cast<int32>(AbilityID::Cancel)));
-
-		ASCInputBound = true;
 	}
 }

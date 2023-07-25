@@ -10,4 +10,7 @@ UCLASS()
 class GASBOSSFIGHT_API AXEnemyCharacter : public AXBaseCharacter
 {
 	GENERATED_BODY()
+
+public:
+	AXEnemyCharacter();
 };

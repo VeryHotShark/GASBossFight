@@ -6,6 +6,8 @@
 #include "Base/XBaseCharacter.h"
 #include "XPlayerCharacter.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
 /**
  * 
  */
@@ -15,6 +17,37 @@ class GASBOSSFIGHT_API AXPlayerCharacter : public AXBaseCharacter
 	GENERATED_BODY()
 
 public:
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	AXPlayerCharacter();
+
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	virtual void PossessedBy(AController* NewController) override;
+
+	UFUNCTION(BlueprintCallable, Category= "Camera")
+	FORCEINLINE float GetInitialCameraBoomLength() const {return InitialCameraBoomArmLength;}
+
+	UFUNCTION(BlueprintCallable, Category= "Camera")
+	FORCEINLINE FVector GetInitialCameraBoomLocation() const {return InitialCameraBoomLocation;}
+	
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const {return  CameraBoom;}
+	FORCEINLINE UCameraComponent* GetFollowCamera() const {return  FollowCamera;}
+
+protected:
+	UPROPERTY(BlueprintReadOnly, Category="Camera")
+	float InitialCameraBoomArmLength;
+
+	UPROPERTY(BlueprintReadOnly, Category="Camera")
+	FVector InitialCameraBoomLocation;
+
+	UPROPERTY(BlueprintReadOnly, Category= "Camera")
+	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(BlueprintReadOnly, Category= "Camera")
+	UCameraComponent* FollowCamera;
+
+	bool ASCInputBound = false;
+
+	void BindASCInput();
+
+	virtual void BeginPlay() override;
 };

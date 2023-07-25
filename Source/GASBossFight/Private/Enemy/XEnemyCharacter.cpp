@@ -2,3 +2,10 @@
 
 
 #include "Enemy/XEnemyCharacter.h"
+
+#include "Enemy/XEnemyController.h"
+
+AXEnemyCharacter::AXEnemyCharacter()
+{
+	AIControllerClass = AXEnemyController::StaticClass();
+}

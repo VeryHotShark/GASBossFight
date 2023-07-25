@@ -3,3 +3,14 @@
 
 #include "Player/XPlayerController.h"
 
+#include "Player/XPlayerState.h"
+
+void AXPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	if(AXPlayerState* PS = GetPlayerState<AXPlayerState>(); PS != nullptr)
+	{
+		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, InPawn);
+	}
+}

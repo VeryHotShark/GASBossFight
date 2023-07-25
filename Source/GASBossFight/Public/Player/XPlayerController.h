@@ -13,5 +13,8 @@ UCLASS()
 class GASBOSSFIGHT_API AXPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	virtual void OnPossess(APawn* InPawn) override;
 	
 };

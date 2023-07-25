@@ -3,8 +3,70 @@
 
 #include "Player/XPlayerCharacter.h"
 
-// Called to bind functionality to input
+#include "Base/XGameplayTags.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GAS/XAbilitySystemComponent.h"
+#include "GAS/XGameplayAbility.h"
+#include "Player/XPlayerState.h"
+
+AXPlayerCharacter::AXPlayerCharacter()
+{
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("CameraBoom"));
+	CameraBoom->SetupAttachment(GetCapsuleComponent());
+	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->SetRelativeLocation(FVector(0,0,70.0f));
+
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(FName("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom);
+	FollowCamera->FieldOfView = 80.0f;
+}
+
 void AXPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	BindASCInput();
+}
+
+void AXPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if(AXPlayerState* PS = GetPlayerState<AXPlayerState>())
+	{
+		AbilitySystemComponent = Cast<UXAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+		AttributeSet = PS->GetAttributeSet();
+
+		AbilitySystemComponent->SetTagMapCount(TAG_Status_Dead, 0);
+		SetHealth(GetMaxHealth());
+		SetStamina(GetMaxStamina());
+
+		AddStartupEffects();
+		AddAbilities();
+	}
+}
+
+void AXPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	InitialCameraBoomArmLength = CameraBoom->TargetArmLength;
+	InitialCameraBoomLocation = CameraBoom->GetRelativeLocation();
+}
+
+void AXPlayerCharacter::BindASCInput()
+{
+	if(!ASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
+	{
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent
+			, FGameplayAbilityInputBinds(
+			FString("ConfirmTarget")
+			,FString("CancelTarget")
+			,		FString("AbilityID")
+			, static_cast<int32>(AbilityID::Confirm)
+			, static_cast<int32>(AbilityID::Cancel)));
+
+		ASCInputBound = true;
+	}
 }

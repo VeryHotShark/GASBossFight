@@ -13,5 +13,9 @@ UCLASS()
 class GASBOSSFIGHT_API AXEnemyController : public AAIController
 {
 	GENERATED_BODY()
-	
+
+public:
+	AXEnemyController();
+
+	virtual void OnPossess(APawn* InPawn) override;
 };

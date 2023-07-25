@@ -8,6 +8,8 @@
 #include "GameplayTagContainer.h"
 #include "XBaseCharacter.generated.h"
 
+class UGameplayEffect;
+class UXGameplayAbility;
 class UXAttributeSet;
 class UXAbilitySystemComponent;
 
@@ -19,15 +21,15 @@ class GASBOSSFIGHT_API AXBaseCharacter : public ACharacter, public IAbilitySyste
 	GENERATED_BODY()
 
 public:
+	AXBaseCharacter();
+	
 	// Sets default values for this character's properties
 	AXBaseCharacter(const class FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(BlueprintAssignable, Category="Base Character")
 	FOnDeathDelegate OnDeath;
 	
-	
-	
-	UPROPERTY(BlueprintCallable, Category="Base Character")
+	UFUNCTION(BlueprintCallable, Category="Base Character")
 	virtual bool IsAlive() const;
 
 	UFUNCTION(BlueprintCallable, Category="Base Character | Attributes")
@@ -53,9 +55,6 @@ public:
 protected:
 	TWeakObjectPtr<UXAbilitySystemComponent> AbilitySystemComponent;
 	TWeakObjectPtr<UXAttributeSet> AttributeSet;
-
-	FGameplayTag DeathTag;
-	FGameplayTag RemoveEffectOnDeathTag;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Base Character | Animation")
 	UAnimMontage* DeathMontage;

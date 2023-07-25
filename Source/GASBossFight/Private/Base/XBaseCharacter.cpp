@@ -1,25 +1,32 @@
 #include "Base/XBaseCharacter.h"
+
+#include "Base/XGameplayTags.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GAS/XAbilitySystemComponent.h"
 #include "GAS/XAttributeSet.h"
+#include "GAS/XGameplayAbility.h"
 
-AXBaseCharacter::AXBaseCharacter(const FObjectInitializer& ObjectInitializer)
+AXBaseCharacter::AXBaseCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
-	DeathTag = FGameplayTag::RequestGameplayTag(FName("State.Tag"));
-	RemoveEffectOnDeathTag = FGameplayTag::RequestGameplayTag(FName("State.RemoveEffect"));
+	
 }
 
+AXBaseCharacter::AXBaseCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
+{
+	PrimaryActorTick.bCanEverTick = true;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
 
-// Called when the game starts or when spawned
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionProfileName(FName("NoCollision"));
+}
+
 void AXBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AXBaseCharacter::DeathMontageEnded);
+
+	if(DeathMontage)
+		GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AXBaseCharacter::DeathMontageEnded);
 }	
 
 
@@ -62,10 +69,10 @@ void AXBaseCharacter::Death()
 		AbilitySystemComponent->CancelAbilities();
 		
 		FGameplayTagContainer EffectsTagsToRemove;
-		EffectsTagsToRemove.AddTag(RemoveEffectOnDeathTag);
+		EffectsTagsToRemove.AddTag(TAG_Event_RemoveOnDeath);
 
 		int NumEffectsRemoved = AbilitySystemComponent->RemoveActiveEffectsWithTags(EffectsTagsToRemove);
-		AbilitySystemComponent->AddLooseGameplayTag(DeathTag);
+		AbilitySystemComponent->AddLooseGameplayTag(TAG_Status_Dead);
 	}
 
 	if(DeathMontage)
@@ -76,7 +83,8 @@ void AXBaseCharacter::Death()
 
 void AXBaseCharacter::DeathMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	DeathEnd();
+	if(Montage == DeathMontage)
+		DeathEnd();
 }
 
 void AXBaseCharacter::DeathEnd()
@@ -92,12 +100,14 @@ UAbilitySystemComponent* AXBaseCharacter::GetAbilitySystemComponent() const
 
 void AXBaseCharacter::SetHealth(float Health)
 {
-	
+	if(AttributeSet.IsValid())
+		AttributeSet->SetHealth(Health);
 }
 
 void AXBaseCharacter::SetStamina(float Stamina)
 {
-	
+	if(AttributeSet.IsValid())
+		AttributeSet->SetHealth(Stamina);
 }
 
 void AXBaseCharacter::RemoveAbilities()
@@ -130,7 +140,10 @@ void AXBaseCharacter::AddAbilities()
 
 	for (TSubclassOf<UXGameplayAbility> Ability : Abilities)
 	{
-		const FGameplayAbilitySpec Spec(Cast<UGameplayAbility>(Ability), 1 , INDEX_NONE, this);
+		const FGameplayAbilitySpec Spec(Cast<UGameplayAbility>(Ability)
+			, 1
+			, static_cast<int32>(Ability.GetDefaultObject()->InputID)
+			, this);
 		AbilitySystemComponent->GiveAbility(Spec);
 	}
 
@@ -139,10 +152,33 @@ void AXBaseCharacter::AddAbilities()
 
 void AXBaseCharacter::InitializeAttributes()
 {
-	
+	if(!AbilitySystemComponent.IsValid() || !DefaultAttributes)
+		return;
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, 1, EffectContext);
+
+	if(NewHandle.IsValid())
+		FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
 }
 
 void AXBaseCharacter::AddStartupEffects()
 {
-	
+	if(!AbilitySystemComponent.IsValid() || AbilitySystemComponent->StartupEffectsApplied)
+		return;
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	for (const TSubclassOf<UGameplayEffect> StartupEffect : StartupEffects)
+	{
+		FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(StartupEffect, 1, EffectContext);
+
+		if(NewHandle.IsValid())
+			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
+	}
+
+	AbilitySystemComponent->StartupEffectsApplied = true;
 }

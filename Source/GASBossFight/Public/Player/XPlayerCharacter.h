@@ -39,10 +39,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category="Camera")
 	FVector InitialCameraBoomLocation;
 
-	UPROPERTY(BlueprintReadOnly, Category= "Camera")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category= "Camera")
 	USpringArmComponent* CameraBoom;
 
-	UPROPERTY(BlueprintReadOnly, Category= "Camera")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category= "Camera")
 	UCameraComponent* FollowCamera;
 
 	bool ASCInputBound = false;

@@ -16,11 +16,9 @@ AXPlayerCharacter::AXPlayerCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("CameraBoom"));
 	CameraBoom->SetupAttachment(GetCapsuleComponent());
 	CameraBoom->bUsePawnControlRotation = true;
-	CameraBoom->SetRelativeLocation(FVector(0,0,70.0f));
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(FName("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom);
-	FollowCamera->FieldOfView = 80.0f;
 }
 
 void AXPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -40,9 +38,9 @@ void AXPlayerCharacter::PossessedBy(AController* NewController)
 		AttributeSet = PS->GetAttributeSet();
 
 		AbilitySystemComponent->SetTagMapCount(TAG_Status_Dead, 0);
+		InitializeAttributes();
 		SetHealth(GetMaxHealth());
 		SetStamina(GetMaxStamina());
-
 		AddStartupEffects();
 		AddAbilities();
 	}

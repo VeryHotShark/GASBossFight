@@ -107,7 +107,7 @@ void AXBaseCharacter::SetHealth(float Health)
 void AXBaseCharacter::SetStamina(float Stamina)
 {
 	if(AttributeSet.IsValid())
-		AttributeSet->SetHealth(Stamina);
+		AttributeSet->SetStamina(Stamina);
 }
 
 void AXBaseCharacter::RemoveAbilities()

@@ -20,5 +20,60 @@ void UXGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, 
 	{
 		ActorInfo->AbilitySystemComponent->TryActivateAbility(Spec.Handle, false);
 	}
-		
+}
+
+void UXGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	const FGameplayEffectContextHandle EffectContext = ActorInfo->AbilitySystemComponent->MakeEffectContext();
+
+	for (auto GameplayEffect : OngoingEffectsToApplyOnStart)
+	{
+		if(!GameplayEffect.Get()) continue;
+
+		FGameplayEffectSpecHandle SpecHandle = ActorInfo->AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, 1, EffectContext);
+
+		if(SpecHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle ActiveGEHandle = ActorInfo->AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
+
+	if(IsInstantiated())
+	{
+		for (auto GameplayEffect : OngoingEffectsToRemoveOnEnd)
+		{
+			if(!GameplayEffect.Get()) continue;
+
+			FGameplayEffectSpecHandle SpecHandle = ActorInfo->AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, 1, EffectContext);
+
+			if(SpecHandle.IsValid())
+			{
+				FActiveGameplayEffectHandle ActiveGEHandle = ActorInfo->AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+				RemoveOnEndEffectHandles.Add(ActiveGEHandle);
+			}	
+		}
+	}
+}
+
+void UXGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if(IsInstantiated())
+	{
+		for (auto ActiveEffectHandle : RemoveOnEndEffectHandles)
+		{
+			if(ActiveEffectHandle.IsValid())
+			{
+				ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveEffectHandle);
+			}
+		}
+
+		RemoveOnEndEffectHandles.Empty();
+	}
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

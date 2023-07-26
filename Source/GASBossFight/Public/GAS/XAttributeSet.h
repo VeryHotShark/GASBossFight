@@ -43,4 +43,5 @@ public :
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UXAttributeSet, Damage);
 
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 };

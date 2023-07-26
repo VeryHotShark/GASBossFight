@@ -6,6 +6,9 @@
 #include "Base/XBaseCharacter.h"
 #include "XEnemyCharacter.generated.h"
 
+class AXEnemyController;
+class AXPlayerCharacter;
+
 UCLASS()
 class GASBOSSFIGHT_API AXEnemyCharacter : public AXBaseCharacter
 {
@@ -13,4 +16,12 @@ class GASBOSSFIGHT_API AXEnemyCharacter : public AXBaseCharacter
 
 public:
 	AXEnemyCharacter();
+
+	UPROPERTY(BlueprintReadOnly, Category="Enemy")
+	AXEnemyController* EnemyController;
+
+	UPROPERTY(BlueprintReadOnly, Category="Enemy")
+	AXPlayerCharacter* Player;
+
+	virtual void PossessedBy(AController* NewController) override;
 };

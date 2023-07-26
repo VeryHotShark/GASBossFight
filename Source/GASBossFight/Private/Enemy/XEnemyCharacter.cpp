@@ -9,3 +9,15 @@ AXEnemyCharacter::AXEnemyCharacter()
 {
 	AIControllerClass = AXEnemyController::StaticClass();
 }
+
+void AXEnemyCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	EnemyController = Cast<AXEnemyController>(NewController);
+
+	if(EnemyController != nullptr)
+	{
+		Player = EnemyController->Player;
+	}
+}

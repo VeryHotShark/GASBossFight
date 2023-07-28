@@ -8,10 +8,13 @@
 #include "Enemy/XEnemyCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/XPlayerCharacter.h"
+#include "Player/XPlayerState.h"
 
 
+class AXPlayerState;
 
-AXEnemyController::AXEnemyController()
+AXEnemyController::AXEnemyController(const FObjectInitializer& ObjectInitializer)
+	 :Super(ObjectInitializer)
 {
 	bWantsPlayerState = true;
 }
@@ -19,6 +22,11 @@ AXEnemyController::AXEnemyController()
 void AXEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+
+	if(AXPlayerState* PS = GetPlayerState<AXPlayerState>(); PS != nullptr)
+	{
+		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, InPawn);
+	}
 
 	Player = Cast<AXPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	Enemy = Cast<AXEnemyCharacter>(InPawn);

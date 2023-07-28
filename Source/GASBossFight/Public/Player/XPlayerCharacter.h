@@ -21,8 +21,6 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	virtual void PossessedBy(AController* NewController) override;
-
 	UFUNCTION(BlueprintCallable, Category= "Camera")
 	FORCEINLINE float GetInitialCameraBoomLength() const {return InitialCameraBoomArmLength;}
 

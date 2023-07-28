@@ -26,26 +26,6 @@ void AXPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	BindASCInput();
 }
-
-void AXPlayerCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	if(AXPlayerState* PS = GetPlayerState<AXPlayerState>())
-	{
-		AbilitySystemComponent = Cast<UXAbilitySystemComponent>(PS->GetAbilitySystemComponent());
-		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
-		AttributeSet = PS->GetAttributeSet();
-
-		AbilitySystemComponent->SetTagMapCount(TAG_Status_Dead, 0);
-		InitializeAttributes();
-		SetHealth(GetMaxHealth());
-		SetStamina(GetMaxStamina());
-		AddStartupEffects();
-		AddAbilities();
-	}
-}
-
 void AXPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();

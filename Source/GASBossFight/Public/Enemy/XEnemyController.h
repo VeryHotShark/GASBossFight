@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "AbilitySystemInterface.h"
 #include "XEnemyController.generated.h"
 
 class AXPlayerCharacter;
@@ -15,9 +16,10 @@ class GASBOSSFIGHT_API AXEnemyController : public AAIController
 	GENERATED_BODY()
 
 public:
+	
 	inline static const FName PlayerKey = FName("Player");
 
-	AXEnemyController();
+	AXEnemyController(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	UBehaviorTree* BT;

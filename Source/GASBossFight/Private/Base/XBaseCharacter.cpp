@@ -6,6 +6,9 @@
 #include "GAS/XAbilitySystemComponent.h"
 #include "GAS/XAttributeSet.h"
 #include "GAS/XGameplayAbility.h"
+#include "Player/XPlayerState.h"
+
+class AXPlayerState;
 
 AXBaseCharacter::AXBaseCharacter()
 {
@@ -27,7 +30,26 @@ void AXBaseCharacter::BeginPlay()
 
 	if(DeathMontage)
 		GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AXBaseCharacter::DeathMontageEnded);
-}	
+}
+
+void AXBaseCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	if(AXPlayerState* PS = GetPlayerState<AXPlayerState>())
+	{
+		AbilitySystemComponent = Cast<UXAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+		AttributeSet = PS->GetAttributeSet();
+
+		AbilitySystemComponent->SetTagMapCount(TAG_Status_Dead, 0);
+		InitializeAttributes();
+		SetHealth(GetMaxHealth());
+		SetStamina(GetMaxStamina());
+		AddStartupEffects();
+		AddAbilities();
+	}
+}
 
 
 bool AXBaseCharacter::IsAlive() const
